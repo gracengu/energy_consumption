@@ -5,6 +5,7 @@ src/*.ipynb
 .idea/
 *.xml
 backup/
+src/ec/data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
