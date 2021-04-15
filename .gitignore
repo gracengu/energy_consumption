@@ -6,7 +6,7 @@ src/*.ipynb
 *.xml
 backup/
 src/ec/data/
-src/*.ipynb
+src/ec/models/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

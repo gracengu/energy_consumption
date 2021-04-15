@@ -6,9 +6,11 @@ import time
 import os
 from glob import glob
 import joblib
+import matplotlib.pyplot as plt
 
 from ec.config import Config
 from ec.analysis import Analysis
+from ec.train import Train
 from ec.analysis.impute import Imputation
 from ec.analysis.feature_engineering import FeatureEngineering
 from ec.analysis.clustering import BuildingClustering
@@ -20,12 +22,16 @@ pd.options.display.max_rows = 200
 
 ANALYSIS_DIRECTORY = "ec/data/analysis/"
 TRAIN_DIRECTORY = "ec/data/train/"
+TEMPFORECAST_DIRECTORY = "ec/data/forecast/temperature/"
+CONSUMPTIONFORECAST_DIRECTORY = "ec/data/forecast/consumption/"
+TEMPH_DIRECTORY = "ec/models/time_series_temperature/hourly/"
+TEMPD_DIRECTORY = "ec/models/time_series_temperature/daily/"
+TEMPW_DIRECTORY = "ec/models/time_series_temperature/weekly/"
 
 IMPUTED_DATA = {}
 for file_name in glob(os.path.join(ANALYSIS_DIRECTORY, 'imputed_data_*')):
     imputed_name = os.path.splitext(os.path.basename(file_name))[0]
-    imputed_name = imputed_name.split("_")[3]
-    print(imputed_name)
+    imputed_name = imputed_name.split("_")[2] + "_" + imputed_name.split("_")[3]
     IMPUTED_DATA[imputed_name] = pd.read_csv(file_name)
 
 # Function 
@@ -100,6 +106,7 @@ if __name__ == '__main__':
         test_object = Analysis(test_data)
         prediction_object = Analysis(prediction_data)
         impute_object = Imputation(impute_method="interpolate", train=train_data, test=test_data)
+        model_object = Train()
 
         if st.sidebar.checkbox('Data Summary'):
 
@@ -184,7 +191,6 @@ if __name__ == '__main__':
             for type, data in df_options.items(): 
                 if show == type: 
                     type = type.lower().split(" ")[0]
-                    print(type)
                     cluster_object = BuildingClustering(data=data, train_data=train_data, df_type=type)
 
             if show == "Train Data":
@@ -244,8 +250,9 @@ if __name__ == '__main__':
                             st.subheader("Performing imputation for cluster {} ...".format(name))
                             imputed_df = impute_object.temperature_imputation(group, "temperature", method_show, features_list)
                             final_df = final_df.append(imputed_df, ignore_index=True)
+                        type = df_options_show.lower().split(" ")[0]
                         final_df.to_csv(os.path.join(ANALYSIS_DIRECTORY, \
-                            "imputed_data_{}_{}.csv".format(df_options_show.lower().split(" ")[0], \
+                            "imputed_data_{}_{}.csv".format(type, \
                                                             method_show)))
                         st.subheader("Imputation completed.")
 
@@ -254,19 +261,21 @@ if __name__ == '__main__':
                         group_series = final_df.groupby(["series_id"])
                         group_list = [(index, group) for index, group in group_series if len(group) > 0]
                         for name, group in group_list:
-                            impute_object.time_series_plot(group, name, "temperature", impute=True)
+                            impute_object.time_series_plot(group, name, "temperature", type, impute=True)
 
                 elif modes_show == 'Analyse Plots Only':
 
                     imputed_options = Config.IMPUTE_CONFIG["IMPUTATION_OPTIONS"]
                     method_show = st.sidebar.selectbox("Select imputed method:",options=imputed_options, index= 0)
+                    method_show =  df_options_show.lower().split(" ")[0] + "_" + method_show
                     for imputed_method, imputed_df in IMPUTED_DATA.items():
+                        
                         if imputed_method == method_show:
                             # Plot
                             group_series = imputed_df.groupby(["series_id"])
                             group_list = [(index, group) for index, group in group_series if len(group) > 0]
                             for name, group in group_list:
-                                impute_object.time_series_plot(group, name, "temperature", impute=True)
+                                impute_object.time_series_plot(group, name, "temperature", type, impute=True)
 
                 elif modes_show == 'Option to impute':
                     st.write("Please select mode for imputation.")
@@ -287,3 +296,47 @@ if __name__ == '__main__':
             #     imputed_df = imputed_df.append(final_df, ignore_index=True)
 
             # st.dataframe(imputed_df)
+
+        if st.sidebar.checkbox('Time Series Forecasting:'):
+
+            # Prepare data 
+            train_imputed = pd.read_csv(os.path.join(ANALYSIS_DIRECTORY, "imputed_data_train_kNN.csv"))
+            test_imputed = pd.read_csv(os.path.join(ANALYSIS_DIRECTORY, "imputed_data_test_kNN.csv"))
+
+            train_imputed = train_imputed[train_imputed.columns.drop(list(train_imputed.filter(regex='Unnamed')))]
+            test_imputed = test_imputed[test_imputed.columns.drop(list(test_imputed.filter(regex='Unnamed')))]
+
+            train_ts = train_imputed.set_index('timestamp')
+            test_ts = test_imputed.set_index('timestamp')
+            prediction_ts = prediction_data.set_index('timestamp')
+            prediction_ts = prediction_ts.sort_values(['series_id','timestamp'])
+            prediction_ts.index = pd.to_datetime(prediction_ts.index)
+
+            # Get missing data
+            missing_temp = prediction_ts.loc[prediction_ts["temperature"].isnull(),:]
+            missing_hour = missing_temp.loc[missing_temp["forecast"] == "Hourly",:].sort_index()
+            missing_day = missing_temp.loc[missing_temp["forecast"] == "Daily",:].sort_index()
+            missing_week = missing_temp.loc[missing_temp["forecast"] == "Weekly",:].sort_index()
+
+            # Forecast temperature for prediction dataset
+            test_selected = test_ts.loc[test_ts["series_id"].isin(list(missing_hour["series_id"].unique())),:]
+            group_series = test_selected.groupby(["series_id"])
+            group_list = [(index, group) for index, group in group_series if len(group) > 0]
+            modes = ['Time frequency to forecast', 'hourly', 'daily', 'weekly']
+            modes_show = st.sidebar.selectbox("Select your choice :",options=modes, index= 0)
+            for name, group in group_list:
+                print(str(name))
+                group_df = pd.DataFrame(group).sort_index()
+                if modes_show == "hourly":
+                    model_name = os.path.join(TEMPH_DIRECTORY, "ts_temperature_{}.pkl".format(name))
+                elif modes_show == "daily":
+                    model_name = os.path.join(TEMPD_DIRECTORY, "ts_temperature_{}.pkl".format(name))
+                elif modes_show == "weekly":
+                    model_name = os.path.join(TEMPW_DIRECTORY, "ts_temperature_{}.pkl".format(name))
+                forecast = model_object.temperature_forecast(group_df, modes_show, name, prediction_ts, "temperature", model_name)
+                datelist = prediction_ts.loc[((prediction_ts["series_id"]==name)) & prediction_ts["temperature"].isnull(),].index
+                prediction_ts.loc[(prediction_ts["series_id"]==name) & prediction_ts.index.isin(datelist),"temperature"]  = forecast.loc[forecast.index.isin(datelist), "Prediction"].values 
+            #     prediction_ts.loc[(prediction_ts.index.isin(forecast.index)) & (prediction_ts["series_id"]==name),"temperature"] = forecast["Prediction"]
+
+
+

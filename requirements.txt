@@ -18,6 +18,7 @@ chardet==4.0.0
 click==7.1.2
 colorama==0.4.4
 cycler==0.10.0
+Cython==0.29.17
 decorator==5.0.5
 defusedxml==0.7.1
 dill==0.3.3
@@ -62,6 +63,7 @@ pickleshare==0.7.5
 Pillow==8.2.0
 plotly==4.14.3
 plotly-express==0.4.1
+pmdarima==1.8.0
 prometheus-client==0.10.0
 prompt-toolkit==3.0.18
 protobuf==3.15.7
