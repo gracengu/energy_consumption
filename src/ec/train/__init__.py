@@ -80,14 +80,14 @@ class Train(Config):
                                 seasonal=True, start_P=0, D=1,maxiter=30,
                                 trace=True, error_action='ignore', suppress_warnings=True,stepwise=True) 
         elif mode == 'daily':
-            fgroup = fgroup[y].resample("D").mean()
+            fgroup = pd.DataFrame(fgroup[y].resample("D").mean())
             ftrain, fval = self.split_train_validation(fgroup, 0.6)
             model = pm.auto_arima(ftrain,start_p=0,start_q=0,test='adf', information_criterion='bic',
                             m=12, d=0, max_order=4,
                             seasonal=True, start_P=0, D=0,maxiter=50,
                             trace=True, error_action='ignore', suppress_warnings=True,stepwise=True) 
         elif mode == 'weekly':
-            fgroup = fgroup[y].resample("W").mean()
+            fgroup = pd.DataFrame(fgroup[y].resample("W").mean())
             ftrain, fval = self.split_train_validation(fgroup, 0.6)
             model = pm.auto_arima(ftrain,start_p=0,start_q=0,test='adf', information_criterion='bic',
                             m=12, d=0, max_order=4,

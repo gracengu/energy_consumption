@@ -297,11 +297,15 @@ if __name__ == '__main__':
 
             # st.dataframe(imputed_df)
 
-        if st.sidebar.checkbox('Time Series Forecasting:'):
+        if st.sidebar.checkbox('Time Series Forecasting'):
+
+            st.subheader("In this section, Time Series Forecasting for Temperature to impute Prediction with be demonstrated.")
+
+            data_show = st.sidebar.selectbox("Select your choice of imputation method :",options=list(IMPUTED_DATA.keys()), index= 0)
 
             # Prepare data 
-            train_imputed = pd.read_csv(os.path.join(ANALYSIS_DIRECTORY, "imputed_data_train_kNN.csv"))
-            test_imputed = pd.read_csv(os.path.join(ANALYSIS_DIRECTORY, "imputed_data_test_kNN.csv"))
+            train_imputed = pd.read_csv(os.path.join(ANALYSIS_DIRECTORY, "imputed_data_{}.csv".format(data_show)))
+            test_imputed = pd.read_csv(os.path.join(ANALYSIS_DIRECTORY, "imputed_data_{}.csv".format(data_show)))
 
             train_imputed = train_imputed[train_imputed.columns.drop(list(train_imputed.filter(regex='Unnamed')))]
             test_imputed = test_imputed[test_imputed.columns.drop(list(test_imputed.filter(regex='Unnamed')))]
@@ -319,24 +323,52 @@ if __name__ == '__main__':
             missing_week = missing_temp.loc[missing_temp["forecast"] == "Weekly",:].sort_index()
 
             # Forecast temperature for prediction dataset
-            test_selected = test_ts.loc[test_ts["series_id"].isin(list(missing_hour["series_id"].unique())),:]
-            group_series = test_selected.groupby(["series_id"])
-            group_list = [(index, group) for index, group in group_series if len(group) > 0]
             modes = ['Time frequency to forecast', 'hourly', 'daily', 'weekly']
             modes_show = st.sidebar.selectbox("Select your choice :",options=modes, index= 0)
-            for name, group in group_list:
-                print(str(name))
-                group_df = pd.DataFrame(group).sort_index()
-                if modes_show == "hourly":
-                    model_name = os.path.join(TEMPH_DIRECTORY, "ts_temperature_{}.pkl".format(name))
-                elif modes_show == "daily":
-                    model_name = os.path.join(TEMPD_DIRECTORY, "ts_temperature_{}.pkl".format(name))
-                elif modes_show == "weekly":
-                    model_name = os.path.join(TEMPW_DIRECTORY, "ts_temperature_{}.pkl".format(name))
-                forecast = model_object.temperature_forecast(group_df, modes_show, name, prediction_ts, "temperature", model_name)
-                datelist = prediction_ts.loc[((prediction_ts["series_id"]==name)) & prediction_ts["temperature"].isnull(),].index
-                prediction_ts.loc[(prediction_ts["series_id"]==name) & prediction_ts.index.isin(datelist),"temperature"]  = forecast.loc[forecast.index.isin(datelist), "Prediction"].values 
-            #     prediction_ts.loc[(prediction_ts.index.isin(forecast.index)) & (prediction_ts["series_id"]==name),"temperature"] = forecast["Prediction"]
+            if modes_show == "hourly":
+                test_selected = test_ts.loc[test_ts["series_id"].isin(list(missing_hour["series_id"].unique())),:]
+            elif modes_show == "daily":
+                test_selected = test_ts.loc[test_ts["series_id"].isin(list(missing_day["series_id"].unique())),:]
+            elif modes_show == "weekly":
+                test_selected = test_ts.loc[test_ts["series_id"].isin(list(missing_week["series_id"].unique())),:]
+            else: 
+                test_selected = None
+
+            if test_selected is not None:
+        
+                group_series = test_selected.groupby(["series_id"])
+                group_list = [(index, group) for index, group in group_series if len(group) > 0]
+
+                activity = ['Select activity', 'Forecast and Plot', 'Plot only']
+                activity_show = st.sidebar.selectbox("Select your choice :",options=modes, index= 0, key = '1')
+                if activity_show == 'Forecast and Plot':
+                    for name, group in group_list:
+                        print(str(name))
+                        group_df = pd.DataFrame(group).sort_index()
+                        if modes_show == "hourly":
+                            model_name = os.path.join(TEMPH_DIRECTORY, "ts_temperature_{}.pkl".format(name))
+                        elif modes_show == "daily":
+                            model_name = os.path.join(TEMPD_DIRECTORY, "ts_temperature_{}.pkl".format(name))
+                        elif modes_show == "weekly":
+                            model_name = os.path.join(TEMPW_DIRECTORY, "ts_temperature_{}.pkl".format(name))
+                        forecast = model_object.temperature_forecast(group_df, modes_show, name, prediction_ts, "temperature", model_name)
+                        datelist = prediction_ts.loc[((prediction_ts["series_id"]==name)) & prediction_ts["temperature"].isnull(),].index
+                        prediction_ts.loc[(prediction_ts["series_id"]==name) & prediction_ts.index.isin(datelist),"temperature"]  = forecast.loc[forecast.index.isin(datelist), "Prediction"].values 
+                    #     prediction_ts.loc[(prediction_ts.index.isin(forecast.index)) & (prediction_ts["series_id"]==name),"temperature"] = forecast["Prediction"]
+
+                elif activity_show == 'Plot only':
+                    # Load forecast
+                    for name, group in group_list:
+                        group_df = pd.DataFrame(group).sort_index()
+                        if modes_show == "hourly":
+                            model_name = os.path.join(TEMPH_DIRECTORY, "ts_temperature_{}.pkl".format(name))
+                        elif modes_show == "daily":
+                            model_name = os.path.join(TEMPD_DIRECTORY, "ts_temperature_{}.pkl".format(name))
+                        elif modes_show == "weekly":
+                            model_name = os.path.join(TEMPW_DIRECTORY, "ts_temperature_{}.pkl".format(name))                    
+                        forecast=model_object.temperature_load(group_df, modes_show, name, prediction_ts, "temperature", model_name)
+                        prediction_ts.loc[(prediction_ts["series_id"]==name) & prediction_ts.index.isin(datelist),"temperature"]  = forecast.loc[forecast.index.isin(datelist), "Prediction"].values 
+
 
 
 
