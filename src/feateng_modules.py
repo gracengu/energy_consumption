@@ -56,7 +56,7 @@ if __name__ == '__main__':
             
             if key == "metadata" and points == "Hourly":
                 data_dict['metadata'] = updated_df
-            else:
+            elif key != "metadata":
                 if key == "prediction":
                     updated_df = updated_df.loc[updated_df["forecast"]==points, :]
                 complete_df = pd.concat([complete_df, updated_df], axis=0, ignore_index=True)
@@ -64,4 +64,4 @@ if __name__ == '__main__':
         complete_df['forecast'] = complete_df['forecast'].fillna('Actual')
         complete_df.to_csv(Config.FILES["MERGED_{}_DIR".format(points.upper())], index=False)
 
-    
+
