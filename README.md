@@ -7,31 +7,40 @@ Building energy consumption varies across a year, especially for countries in th
 * **1. About the Project**
 * **2. Getting Started**
 * **3. Set up your environment**
-* **4. Open your Jupyter notebook**
-
+* **4. Run Model Training**
+* **4. Run Streamlit**
 
 ## Structuring a repository
 To ensure reusability, a sensible repository structure is established as follows:
 
 ```bash
 energy_consumption
-├── docs
-│   ├── make.bat
-│   ├── Makefile
-│   └── source
-│       ├── conf.py
-│       └── index.rst
-├── src
-│   └── analysis
-│       └── __init__.py
-│       └── processing.py
-|       └── feature_engineer.py
-|       └── statistical_analysis.py
-|   └── Config.py
+├───ec
+│   ├───.ipynb_checkpoints
+│   ├───analysis
+│   │   ├─── __init__.py
+│   │   ├─── clustering.py
+│   │   ├─── feature_engineering.py
+│   │   └─── impute.py
+│   ├───base
+│   │   ├─── __init__.py
+│   │   └─── logger.py
+│   ├───data
+│   │   ├───analysis
+│   │   ├───forecast
+│   │   │   ├───consumption
+│   │   │   └───temperature
+│   │   └───train
+│   ├───output
+│   ├───train
+│   │   ├─── __init__.py
+│   │   ├─── modelling.py
+│   │   └───__pycache__
+├───logs
 ├── .gitignore
 ├── README.md
 ├── environment.yml
-├── requirements.txt
+└── requirements.txt
 
 ```
 
@@ -58,10 +67,9 @@ The project revolves mainly about the following key data science approaches:
   - <b><u>Missing data imputation </b></u>
   - <b><u>Building Clusterings (Unsupervised Learning)</u></b>
   - <b><u>Time Series Analysis & Forecasting</u></b>
-    - <b><u>ARIMA</u></b>
-    - <b><u>Simple Exponential Smoothing</u></b>
-    - <b><u>Long Short-Term Memory (LSTM)</u></b>
-
+    - <b><u>Linear Regression</u></b>
+    - <b><u>Random Forest</u></b>
+    - <b><u>Light Gradient Boosting Method</u></b>
 
 ### Key Takeaways
 
@@ -70,7 +78,6 @@ How is this project different from the rest? Here are some pain points to give y
 - The buildings come from different locations, and these locations are unknown 
 - There is a lot of missing data in the dataset
 - Timestamp of all buildings are scattered
-
 
 ## 2. Getting Started
 
@@ -113,26 +120,19 @@ To **install the requirements**
 pip install -r requirements.txt
 ```
 
-## 4. Run Streamlit
+## 4. Run Model Training
+
+The models are not uploaded in github. After setting up the repository, you may run the model training as follows:
+
+```python
+  cd src
+  python training_modules.py
+```
+
+## 5. Run Streamlit
 
 For this project, all results are demonstrated via streamlit. You may run the streamlit as follows: 
 
 ```python
-  cd src
   streamlit run app.py
 ```
-
-## 5. Open your Jupyter notebook
-
-1. You will have to install a new IPython kernelspec for your jupyter notebook. 
-    
-  ```python
-  python -m ipykernel install --user --name python3.7_energy --display-name "python3.7_energy"
-  ```
-
-You can change the `--display-name` to anything you want, though if you leave it out, the kernel's display name will default to the value passed to the `--name` flag.
-
-2. In the terminal, execute `jupyter notebook`.
-
-Navigate to the notebooks directory and open notebook:
-  - Modelling: `Train.ipynb` [Placeholder]

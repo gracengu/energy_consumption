@@ -55,7 +55,7 @@ class Config:
         MERGED_DAILY_DIR                = "./ec/data/analysis/merged_data_Daily.csv",
         MERGED_WEEKLY_DIR               = "./ec/data/analysis/merged_data_Weekly.csv",
         OUTPUT_DIR                      = "./ec/output",
-        REGRESSION_MODELS_DIR           = "./ec/models/mp",
+        REGRESSION_MODELS_DIR           = "./ec/models",
         ANALYSIS_DIRECTORY              = "./ec/data/analysis/",
         TRAIN_DIRECTORY                 = "./ec/data/train/",
         TEMPFORECAST_DIRECTORY          = "./ec/data/forecast/temperature/",
