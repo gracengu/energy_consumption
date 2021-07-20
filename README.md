@@ -6,7 +6,7 @@ Building energy consumption varies across a year, especially for countries in th
 ## Table of Contents
 * **1. About the Project**
 * **2. Getting Started**
-* **3. Set up your environment**
+* **3. Set Up Your Environment**
 * **4. Run Model Training**
 * **4. Run Streamlit**
 
