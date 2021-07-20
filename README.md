@@ -34,8 +34,7 @@ energy_consumption
 │   ├───output
 │   ├───train
 │   │   ├─── __init__.py
-│   │   ├─── modelling.py
-│   │   └───__pycache__
+│   │   └─── modelling.py
 ├───logs
 ├── .gitignore
 ├── README.md
@@ -94,10 +93,9 @@ Alternatively, if you don't have experience with git, you may download the zip f
 
 ## 3. Set up virtual environment
 
-Setting up virtual environment avoids conflict in dependencies: 
+**Note:** The instructions below is currently catering to pip users only.
 
-
-- For `pip` users
+Setting up virtual environment avoids conflicts in dependencies: 
 
 To set up **virtual environment**, use the `virtualenv` command. 
 
