@@ -32,16 +32,20 @@ class Analysis(Config):
             Dataframe to be used for feature selection 
         """
 
-        category_cols       = self.FEATURE_DEFINITION["category_cols"]
-        integer_cols        = self.FEATURE_DEFINITION["integer_cols"]
-        float_cols          = self.FEATURE_DEFINITION["float_cols"]
-        datetime_cols       = self.FEATURE_DEFINITION["datetime_cols"]
+        category_cols       = self.FEATURE_TYPES["category_cols"]
+        integer_cols        = self.FEATURE_TYPES["integer_cols"]
+        float_cols          = self.FEATURE_TYPES["float_cols"]
+        datetime_cols       = self.FEATURE_TYPES["datetime_cols"]
+        string_cols         = self.FEATURE_TYPES["string_cols"]
+        bool_cols           = self.FEATURE_TYPES["bool_cols"]
         data                = self.data
         
         data[category_cols] = data[category_cols].astype('category',copy=False) 
         data[integer_cols] = data[integer_cols].astype('int64',copy=False)
         data[float_cols] = data[float_cols].astype('float64',copy=False)
         data[datetime_cols] = data[datetime_cols].astype('datetime64[ns]',copy=False)
+        data[string_cols] = data[string_cols].astype('str',copy=False)
+        data[bool_cols] = data[bool_cols].astype('bool', copy=False)
 
         return data
         
@@ -58,6 +62,7 @@ class Analysis(Config):
                                               Numerical data: A dataframe consisting of count, mean, sd, quartiles, min, and max; 
                                               Categorical data: A dataframe consisting of count, unique, top and frequency. 
         '''
+
         # Return outputs according to format
         numerical = self.data.select_dtypes(include=["int","float"])
         datetime = self.data.select_dtypes(include=["category"])
@@ -300,7 +305,7 @@ class Analysis(Config):
             df_catindependent_enc = pd.DataFrame(oe.transform(categorical_df))
             df_catindependent_enc.columns = categorical_df.columns
 
-        except KeyError as e: 
+        except KeyError: 
 
             st.write("Cannot perform one-hot encoding for numerical variables. Please check if variables are properly defined.")
             st.write(self.data.columns != "consumption")

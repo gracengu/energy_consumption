@@ -58,6 +58,7 @@ class Imputation(Config):
             plt.plot(imputed["timestamp"], imputed[y], 'g')
             plt.plot(not_imputed["timestamp"], not_imputed[y], 'b')
             plt.title(str(building_id), fontsize=15)
+            plt.legend(loc='upper left')
             st.pyplot(fig) 
 
         else: 
@@ -76,6 +77,7 @@ class Imputation(Config):
             plt.plot(is_day_off["timestamp"], is_day_off[y],  'r')
             plt.plot(is_night["timestamp"], is_night[y],  'b')
             plt.title(str(building_id), fontsize=15)
+            plt.legend(loc='upper left')
             st.pyplot(fig)
 
     def interpolate(self, df, method="slinear", limit_direction=None):

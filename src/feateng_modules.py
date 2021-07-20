@@ -51,6 +51,7 @@ if __name__ == '__main__':
                 df.reset_index(inplace=True)
 
             if (points == "Hourly") or (points != "Hourly" and key != "metadata"):
+                
                 feature_object = FeatureEngineering(df, data_dict['metadata'])
                 updated_df = feature_object.add_features(key)
             
@@ -60,7 +61,7 @@ if __name__ == '__main__':
                 if key == "prediction":
                     updated_df = updated_df.loc[updated_df["forecast"]==points, :]
                 complete_df = pd.concat([complete_df, updated_df], axis=0, ignore_index=True)
-                
+                    
         complete_df['forecast'] = complete_df['forecast'].fillna('Actual')
         complete_df.to_csv(Config.FILES["MERGED_{}_DIR".format(points.upper())], index=False)
 

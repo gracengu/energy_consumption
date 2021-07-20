@@ -58,7 +58,10 @@ The project revolves mainly about the following key data science approaches:
   - <b><u>Missing data imputation </b></u>
   - <b><u>Building Clusterings (Unsupervised Learning)</u></b>
   - <b><u>Time Series Analysis & Forecasting</u></b>
-  - <b><u>Long Short-Term Memory (LSTM)</u></b>
+    - <b><u>ARIMA</u></b>
+    - <b><u>Simple Exponential Smoothing</u></b>
+    - <b><u>Long Short-Term Memory (LSTM)</u></b>
+
 
 ### Key Takeaways
 
@@ -69,69 +72,67 @@ How is this project different from the rest? Here are some pain points to give y
 - Timestamp of all buildings are scattered
 
 
-
 ## 2. Getting Started
-- If you prefer to use the `conda` package manager (which ships with the Anaconda distribution of Python), you may clone the repository locally as follows:
+
+To get started, you may clone the repository locally as follows:
   
-    In your terminal, use `git` to clone the repository locally.
+In your terminal, use `git` to clone the repository locally.
+
+```bash
+https://github.com/gracengu/building_energy_consumption_forecast.git
+```
+  
+Alternatively, if you don't have experience with git, you may download the zip file of the repository at the top of the main page of the repository. However, it is most recommended to use git for version control purpose. 
     
-    ```bash
-    https://github.com/gracengu/building_energy_consumption_forecast.git
-    ```
-    
-    Alternatively, if you don't have experience with git, you may download the zip file of the repository at the top of the main page of the repository. However, it is most recommended to use git for version control purpose. 
-    
-- Prefer to use `pipenv`, which is a package authored by Kenneth Reitz for package management with `pip` and `virtualenv`, or
 
 ## 3. Set up virtual environment
 
 Setting up virtual environment avoids conflict in dependencies: 
 
-- For  `conda` users
-
-If this is the first time you're setting up your compute environment, 
-use the `conda` package manager 
-to **install all the necessary packages** 
-from the provided `energy_consumption.yml` file.
-
-```bash
-conda env create -f environment.yml
-```
-
-To **activate the environment**, use the `conda activate` command.
-
-```bash
-conda activate customer_segmentation
-```
-
-To **update the environment** based on the `environment.yml` specification file, use the `conda update` command.
-
-```bash
-conda env update -f environment.yml
-```
 
 - For `pip` users
 
-Please install all of the packages listed in the `requirement.txt`. 
-An example command would be:
+To set up **virtual environment**, use the `virtualenv` command. 
 
 ```bash
-pip install -r requirement.txt
+pip install virtualenv
+virtualenv python3.7_energy
 ```
 
+**Note:** When creating a virtual environment, best practice is to specify the python version as part of the name of the environment for future reference of other developers.  
 
-## 4. Open your Jupyter notebook
+To **activate the environment**, run the activate script. 
 
-1. You will have to install a new IPython kernelspec if you created a new conda environment with `environment.yml`.
+```bash
+python3.7_energy\Script\activate
+```
+
+To **install the requirements**
+
+```bash
+pip install -r requirements.txt
+```
+
+## 4. Run Streamlit
+
+For this project, all results are demonstrated via streamlit. You may run the streamlit as follows: 
+
+```python
+  cd src
+  streamlit run app.py
+```
+
+## 5. Open your Jupyter notebook
+
+1. You will have to install a new IPython kernelspec for your jupyter notebook. 
     
-    ```python
-    python -m ipykernel install --user --name customer_segmentation --display-name "customer_segmentation"
-    ```
+  ```python
+  python -m ipykernel install --user --name python3.7_energy --display-name "python3.7_energy"
+  ```
 
 You can change the `--display-name` to anything you want, though if you leave it out, the kernel's display name will default to the value passed to the `--name` flag.
 
 2. In the terminal, execute `jupyter notebook`.
 
 Navigate to the notebooks directory and open notebook:
-  - ETL: `Analysis.ipynb` [Placeholder]
   - Modelling: `Train.ipynb` [Placeholder]
