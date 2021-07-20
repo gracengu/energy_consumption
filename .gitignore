@@ -4,8 +4,12 @@ python3.7*
 src/*.ipynb
 .idea/
 *.xml
+*.pkl
 backup/
 src/ec/data/
+src/ec/models/
+src/ec/output/*.pkl
+old
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

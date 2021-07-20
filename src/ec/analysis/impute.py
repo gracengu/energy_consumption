@@ -35,14 +35,17 @@ class Imputation(Config):
         return imputer.get(self.impute_method, "Invalid impute method")
 
 
-    def time_series_plot(self, group_df, building_id, y, impute=False):
+    def time_series_plot(self, group_df, building_id, y, data, impute=False):
 
         fig = plt.figure(figsize=(20,2))
         group_df['timestamp'] = pd.to_datetime(group_df['timestamp'])
 
         if impute: 
-
-            original_data = self.train.loc[self.train["series_id"]== building_id,:]
+            
+            if data == 'train':
+                original_data = self.train.loc[self.train["series_id"]== building_id,:]
+            else:
+                original_data = self.test.loc[self.test["series_id"]== building_id,:]
 
             missing_dates = list(pd.to_datetime(original_data.loc[original_data[y].isnull(), "timestamp"]))
 
@@ -55,6 +58,7 @@ class Imputation(Config):
             plt.plot(imputed["timestamp"], imputed[y], 'g')
             plt.plot(not_imputed["timestamp"], not_imputed[y], 'b')
             plt.title(str(building_id), fontsize=15)
+            plt.legend(loc='upper left')
             st.pyplot(fig) 
 
         else: 
@@ -73,6 +77,7 @@ class Imputation(Config):
             plt.plot(is_day_off["timestamp"], is_day_off[y],  'r')
             plt.plot(is_night["timestamp"], is_night[y],  'b')
             plt.title(str(building_id), fontsize=15)
+            plt.legend(loc='upper left')
             st.pyplot(fig)
 
     def interpolate(self, df, method="slinear", limit_direction=None):
@@ -128,8 +133,8 @@ class Imputation(Config):
             imputer = IterativeImputer(max_iter=Config.IMPUTE_CONFIG["MICE_MAXITER"], random_state=126)
 
         imputer.fit(features_data)
-        Xtrans = pd.DataFrame(imputer.transform(features_data))
-        grouped_series[var] = Xtrans[0].tolist()
+        Xtrans = pd.DataFrame(imputer.transform(features_data), columns=features_data.columns)
+        grouped_series[var] = Xtrans[var].tolist()
 
         # For complete data
         complete_data = df.groupby(["series_id"]).filter(lambda x: x[var].isnull().sum()*100/len(x[var]) == 0)
